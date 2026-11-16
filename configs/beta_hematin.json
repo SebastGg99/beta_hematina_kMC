@@ -1,0 +1,9 @@
+{
+  "name": "beta_hematin",
+  "description": "β-hematina: celda triclínica real (Pagola 2000), dímero = unidad, energías efectivas PROVISIONALES (kmc3d/presets.py). Reparto simétrico tipo MONTY.",
+  "graph": {"preset": "beta_hematin"},
+  "rates": {"kind": "symmetric", "delta_mu": 1.5, "k0": 1.0},
+  "seed": {"shape": "sphere", "radius": 40.0},
+  "engine": {"rng_seed": 1, "track_faces": [[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 1, 1], [0, 1, -1], [1, 0, 1], [1, 0, -1], [1, 1, 0], [1, -1, 0]]},
+  "run": {"max_events": 600000, "n_max": 40000, "record_every": 2000, "snapshot_every": 150000}
+}

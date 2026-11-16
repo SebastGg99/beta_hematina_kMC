@@ -1,0 +1,9 @@
+{
+  "name": "kossel_smooth",
+  "description": "Cristal de Kossel con φ/kT = 2 (caras {100} lisas: crecimiento por nucleación 2D a Δμ bajo). Validación de la Fase 1.",
+  "graph": {"preset": "kossel", "phi": 2.0},
+  "rates": {"kind": "gilmer", "delta_mu": 1.0, "k0": 1.0},
+  "seed": {"shape": "cube", "n": 12},
+  "engine": {"rng_seed": 1, "track_faces": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]},
+  "run": {"max_events": 300000, "n_max": 60000, "record_every": 2000, "snapshot_every": 100000}
+}

@@ -1,0 +1,9 @@
+{
+  "name": "anisotropic_needle",
+  "description": "Cubitos con φz > φy > φx: aguja a lo largo de z con sección rectangular (prueba de anisotropía).",
+  "graph": {"preset": "anisotropic_cubic", "phi_x": 1.2, "phi_y": 1.8, "phi_z": 3.0},
+  "rates": {"kind": "gilmer", "delta_mu": 1.0, "k0": 1.0},
+  "seed": {"shape": "cube", "n": 8},
+  "engine": {"rng_seed": 1, "track_faces": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]},
+  "run": {"max_events": 400000, "n_max": 40000, "record_every": 2000, "snapshot_every": 100000}
+}

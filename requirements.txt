@@ -1,0 +1,9 @@
+# Mismo entorno que kMC_Malaria (de donde viene la copia de src/).
+# Verificado con Python 3.14 y estas versiones.
+numpy==2.5.3
+pandas==3.0.6
+matplotlib==3.11.2
+
+# Opcionales:
+# ipykernel          # abrir los notebooks
+# plotly             # solo kmc3d/viz_interactive.py (vista 3D con WebGL)
