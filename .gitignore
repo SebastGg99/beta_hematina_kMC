@@ -6,3 +6,14 @@ venv/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+
+# Documentación: salida de Sphinx y páginas que genera autosummary en cada compilación
+docs/build/
+docs/source/generated/
+
+# Archivos descartados: se mueven aquí, nunca se borran (ver CLAUDE.md)
+.descartables/
+
+# Configuración local de Claude Code (igual que en kMC_Malaria)
+.claude/
+CLAUDE.md

@@ -131,7 +131,24 @@ Se cargan con `kmc3d.io.load_run`. El §8 del notebook 01 las resume.
 | `teoria/` | documento teórico (`teoria_3DkMC.tex`/`.pdf`) y `make_figures.py` |
 | `outputs/` | figuras y cachés de los notebooks |
 | `src/` | copia del motor (2+1)D de kMC_Malaria (ver [Código reutilizado](#código-reutilizado)) |
-| `tests/` | 74 tests, unos 15 s |
+| `docs/` | documentación con Sphinx (ver [Documentación](#documentación)) |
+| `tests/` | 74 tests, unos 20 s |
+
+## Documentación
+
+`docs/` tiene la documentación con Sphinx: páginas en Markdown (MyST), tema de Read the
+Docs y la referencia de la API generada desde los docstrings (autodoc + autosummary).
+Sigue la estructura del [tutorial de Sphinx](https://www.sphinx-doc.org/en/master/tutorial/index.html).
+
+```bash
+pip install -r docs/requirements.txt
+cd docs
+make html        # docs/build/html/index.html
+make doctest     # comprueba los ejemplos >>> de la guía de uso
+```
+
+`docs/build/` y `docs/source/generated/` se generan al compilar y no se versionan. El
+logo se regenera con `python docs/make_logo.py`.
 
 ## Tests
 
