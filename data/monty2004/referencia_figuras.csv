@@ -1,0 +1,29 @@
+# Referencia para validar kmc3d con MONTY (Boerrigter et al., J. Phys. Chem. A 108, 5894, 2004).
+# Una fila por grupo de curvas de las Figs. 2-4. Delta mu en kcal/mol.
+# dmu_texto: umbral que da el texto del articulo (secciones 3.2.1-3.2.3 y pies de figura).
+# dmu_S01, dmu_S05, dmu_S09: Delta mu en que la curva cruza S = 0.1, 0.5 y 0.9, digitalizado
+#   sobre references/papers/MONTY2004/images/page_5_{0,1,2}.jpg con scripts/digitalizar_monty.py
+#   (calibracion por pixeles: marco de los ejes y etiquetas de los ticks) y asignado a mano
+#   a cada grupo. Las etiquetas de texto de las figuras cruzan algunas filas: los valores
+#   ambiguos se marcan con confianza "media" y un margen dmu_err.
+# Cuando un grupo tiene varias curvas, el valor es el centro del haz y dmu_err cubre su anchura.
+grasa,figura,T_K,grupo,caras,tipo,dmu_texto,dmu_S01,dmu_S05,dmu_S09,dmu_err,confianza
+beta_16_16_16,2,313,1,(1-11),superior no conexa,0,0.19,0.95,2.36,0.1,alta
+beta_16_16_16,2,313,2,(-110) (1-10),superior no conexa,0,1.11,2.25,4.14,0.1,alta
+beta_16_16_16,2,313,3,(-111) (1-1-1),superior no conexa,0,2.3,4.53,6.65,0.15,alta
+beta_16_16_16,2,313,4,(2-1-3) (2-1-2),superior no conexa (se rompe en tejado),7,7.92,9.34,10.72,0.15,alta
+beta_16_16_16,2,313,5,(0-10) (0-11) (010) (2-1-1) (2-10) (0-1-1),superior,7,8.25,9.59,11.08,0.2,alta
+beta_16_16_16,2,313,6,(100) (10-1) (-101) (20-3) (30-5),lateral,13,14.5,15.8,17.2,0.3,alta
+beta_16_16_16,2,313,7,(001),basal,60,,,,5,texto
+betap_10_12_10,3,300,1,(011) (013) (110) (112) (310) (610) (611),superior,0,0.2,0.35,1.43,0.2,media
+betap_10_12_10,3,300,2,(211),superior,2,3.73,4.97,6.27,0.15,alta
+betap_10_12_10,3,300,3,(101) (200) (201),lateral,12,13.34,14.64,15.94,0.2,alta
+betap_10_12_10,3,300,4,(002),basal,43,44.64,46.07,47.69,0.2,alta
+betap_16_16_14,4,300,1,(020) (0-21) (0-22) (0-11),superior,0,0.14,0.54,1.56,0.1,alta
+betap_16_16_14,4,300,2,(310) (313) (314) (315) (316) (317),superior,,1.6,2.2,2.86,0.3,media
+betap_16_16_14,4,300,3,(111) (112) (113) (1-14),superior,,2.17,3.17,4.45,0.2,media
+betap_16_16_14,4,300,4,(110) (11-1),superior,,3.59,4.46,5.72,0.15,media
+betap_16_16_14,4,300,5,(205) (204),lateral,,4.52,5.57,7.2,0.2,media
+betap_16_16_14,4,300,6,(203),lateral,,4.98,5.86,7.26,0.3,media
+betap_16_16_14,4,300,7,(100) (202) (201) (30-1),lateral,,5.55,6.9,8.0,0.4,media
+betap_16_16_14,4,300,8,(001),basal,62,,,,5,texto

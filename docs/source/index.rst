@@ -40,6 +40,7 @@ proporcional a :math:`|E_{att}|`) con las energías calibradas, dibujada con
 
    modelo
    beta_hematina
+   monty
    notebooks
 
 .. toctree::

@@ -2,7 +2,7 @@
 
 ## Cómo correrlas
 
-Desde la raíz del repositorio (74 tests, unos 20 s):
+Desde la raíz del repositorio (94 tests, unos 25 s):
 
 ```bash
 python -m unittest discover -s tests
@@ -24,6 +24,8 @@ desde `docs/`.
 | `test_analysis.py` | 10 | Base de cara, mapas de alturas, semillas poliédricas, probabilidades de unión |
 | `test_morphology.py` | 13 | Caras de poliedros, áreas de Wulff, facetas del cristal kMC, espesores, render y criterios de calibración |
 | `test_parallel.py` | 4 | Ejecutor paralelo con `subprocess` y experimentos importables |
+| `test_basis_graph.py` | 8 | `BasisGraph`: E_slice, E_att y d_hkl iguales a los de `CrystalGraph` con base 1, supercelda, simetría (`from_centers`), kcal/mol ↔ kT, JSON y celda de capa unimodular y reducida |
+| `test_slab.py` | 12 | `SlabKMC` y `MontyRates`: tasas iguales a `SplitRates(1 − λ2, λ1)`, balance detallado, estado incremental frente a reconstrucción (contorno periódico, caja que crece por arriba y por abajo, las dos reglas de huecos cerrados), energías de sitio contadas a mano con base > 1, determinismo, pickle, caras lisas frente a rugosas, equilibrio, simetría crecimiento/disolución y comparación con la referencia de MONTY |
 
 ## Reproducibilidad
 

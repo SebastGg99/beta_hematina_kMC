@@ -1,7 +1,7 @@
 # Notebooks
 
-Los resultados del proyecto están en dos notebooks de `notebooks/`. Cada uno guarda
-sus figuras (y, el 02, sus cachés) en `outputs/<nombre_del_notebook>/`, y son las
+Los resultados del proyecto están en tres notebooks de `notebooks/`. Cada uno guarda
+sus figuras (y, el 02 y el 03, sus cachés) en `outputs/<nombre_del_notebook>/`, y son las
 figuras que usan esta documentación, el plan y el documento teórico.
 
 Para abrirlos basta con lanzar Jupyter desde cualquier carpeta del repositorio: la
@@ -58,3 +58,18 @@ Las corridas largas se guardan en `outputs/02_difusion_visualizacion_calibracion
 Kossel: velocidad y rugosidad de las caras {100} frente a $k_d/k_0$ (notebook 02,
 §2.2). La difusión acelera sobre todo las caras lisas ($\varphi = 3$).
 ```
+
+## 03: validación con MONTY
+
+`notebooks/03_validacion_monty.ipynb` comprueba `kmc3d` frente a MONTY (Boerrigter et
+al. 2004) con el motor de superficie `SlabKMC` (ver [](monty.md)).
+
+| Sección | Contenido |
+|---|---|
+| 1 | Configuración |
+| 2 | Parte A (metodología): tasas de MONTY frente a `SplitRates`, equilibrio, curvas $S(\Delta\mu)$ de Kossel, energía de borde frente a Onsager, superficie frente a cristal finito, invariancia de supercelda, caras opuestas |
+| 3 | Parte B (grasas): referencia digitalizada de las Figs. 2–4 y comparación (pendiente de los grafos de las grasas) |
+| 4 | Conclusiones y pendientes |
+
+Las corridas se guardan en `outputs/03_validacion_monty/cache/`, y los barridos de
+`scripts/run_monty.py` en `outputs/03_validacion_monty/barridos/`.

@@ -13,17 +13,18 @@ Autor del proyecto: sebastgg99@gmail.com. Documento creado el 2026-11-09.
 | Fase | Contenido | Estado |
 |---|---|---|
 | F1 | Núcleo: grafo de enlaces, tasas, motor BKL 3D incremental, tests | **hecho** |
-| F2 | Análisis por cara, forma de energía de unión, mapas de alturas, figuras, E/S | **hecho** (falta el modo *slab*) |
+| F2 | Análisis por cara, forma de energía de unión, mapas de alturas, figuras, E/S, modo *slab* | **hecho** (*slab*: `kmc3d/slab.py`, §11) |
 | F3 | β-hematina: celda real, energías provisionales, calibración | celda y presets hechos; **calibración con la morfología hecha** (§7.5); falta la cinética (AFM) |
 | F4 | Física adicional: difusión superficial, reservorio finito, aditivos | **difusión hecha**; reservorio, aditivos y tasas adaptativas pendientes |
 | F5 | Rendimiento (réplicas en paralelo, compilación) | **réplicas en paralelo hechas** (`parallel.py`); compilación pendiente |
-| F6 | Unidades moleculares, base > 1, grafo desde CIF | pendiente |
+| F6 | Unidades moleculares, base > 1, grafo desde CIF | **base > 1 hecha en el *slab*** (`kmc3d/basis_graph.py`, §11); en `KMC3D` y grafo desde CIF, pendiente |
 
 Los resultados de la Fase 1 y la primera exploración de β-hematina están en
 `notebooks/01_primeros_resultados.ipynb` y en el §7.4 de este documento. La difusión,
 las visualizaciones nuevas (`render.py`) y la calibración de β-hematina con la
 morfología están en `notebooks/02_difusion_visualizacion_calibracion.ipynb` y en el
-§7.5.
+§7.5. La validación con MONTY (superficie periódica, base > 1, curvas de fracción de
+adhesión de las tres grasas) está en `notebooks/03_validacion_monty.ipynb` y en el §11.
 
 ---
 
@@ -66,10 +67,10 @@ del 2D (regla del proyecto): la diferencia queda documentada (decisión D6).
 
 | | MONTY (Boerrigter et al. 2004) | CrystalGrower (Anderson et al. 2017) | `3DkMC` |
 |---|---|---|---|
-| Qué se simula | **una superficie (hkl)** con contorno periódico; las velocidades de cada cara se combinan después en una forma de Wulff cinética | el **cristal entero** | el **cristal entero** (modo *slab* por cara previsto en F2) |
-| Estructura | grafo cristalino desde la estructura real, cualquier orientación | estructura real, unidades con varias "particiones" | grafo de enlaces sobre una red de Bravais con **una** unidad por celda (F1–F3); base > 1 en F6 |
+| Qué se simula | **una superficie (hkl)** con contorno periódico; las velocidades de cada cara se combinan después en una forma de Wulff cinética | el **cristal entero** | el **cristal entero** (`KMC3D`) y una **superficie (hkl)** periódica (`SlabKMC`, §11) |
+| Estructura | grafo cristalino desde la estructura real, cualquier orientación | estructura real, unidades con varias "particiones" | grafo de enlaces sobre una red de Bravais con **una** unidad por celda en `KMC3D`; base > 1 en `SlabKMC` (`BasisGraph`, §11) |
 | Energías | campo de fuerzas (pares de unidades) | ΔU por tipo de sitio | φ por tipo de enlace, en kT (provisionales para β-hematina) |
-| Tasas | reparto simétrico de Δμ y ΔU entre unión y despegue (la forma exacta no se ha verificado aquí) | probabilidades de unión/despegue por energía de sitio | familia `SplitRates` con balance detallado (Gilmer, simétrica, intermedias) + `AdaptiveRates` (Nagpal, como el 2D) |
+| Tasas | reparto de Δμ y ΔU entre unión y despegue con (λ1, λ2): es `SplitRates(a_mu = 1 − λ2, b_E = λ1)` (verificado sobre las ecs. 11–12, §11) | probabilidades de unión/despegue por energía de sitio | familia `SplitRates` con balance detallado (Gilmer, simétrica, intermedias) + `AdaptiveRates` (Nagpal, como el 2D) |
 | Difusión superficial | sí | sí | no (F4) |
 
 Lo que tomamos de MONTY: **el grafo cristalino** como descripción de las
@@ -235,18 +236,21 @@ sus tests.
 | Tamaño crítico de un cubo de Kossel, L* = 2φ/Δμ | OK: la frontera crece/se disuelve sigue L* (notebook 01, §3.1) |
 | Cubitos anisótropos: R(100) < R(010) < R(001), aguja según z | OK. Con el plano medio, R_rel = 1 : 1.66 : 3.04 frente a E_att 1 : 1.5 : 2.5 a Δμ = 1: la cinética amplifica la anisotropía, porque la cara lenta es lisa |
 
-### F2: análisis por cara (hecho, salvo el modo *slab*)
+### F2: análisis por cara (hecho)
 
 Hecho: `analysis.py`, `viz.py`, `io.py`, `scripts/run_3d.py`, configs y el notebook 01.
+El **modo *slab*** está hecho en `kmc3d/slab.py` (`SlabKMC`, §11), con la celda de capa
+de MONTY (`basis_graph.slice_cell`) en vez de `face_frame`.
 
-Pendiente: **modo *slab***. Es una caja con contorno periódico en las dos direcciones
+Diseño original del **modo *slab***. Es una caja con contorno periódico en las dos direcciones
 de una cara (hkl) (base de `face_frame`) y crecimiento solo hacia +w. Es el equivalente
 3D de MONTY y del motor 2D. Sirve para:
 - curvas R_hkl(Δμ) por cara sin efectos de aristas ni de tamaño finito;
 - comparar con la línea 2D en (001), con la misma convención de conteo (D6).
 
 Criterio: en (001) Kossel con `AdaptiveRates` y sin voladizos, ⟨h⟩(t) y W(t)
-estadísticamente iguales a `KMC_BKL_Static` en los sitios comparables.
+estadísticamente iguales a `KMC_BKL_Static` en los sitios comparables. **Pendiente**:
+`SlabKMC` usa `MontyRates`; la comparación con `KMC_BKL_Static` no se ha hecho.
 
 ### F3: β-hematina (celda hecha; calibración con la morfología hecha, §7.5)
 
@@ -306,7 +310,10 @@ opción (a).
 
 ### F6: unidades más realistas
 
-- **Base > 1** (varias unidades por celda: hemo en vez de dímero), con un grafo cuyos
+- **Base > 1**: hecha para el *slab* (`BasisGraph` + `SlabKMC`, §11), con el código de
+  vecindad como máscara de bits de los enlaces (tabla de consulta de MONTY). Falta en
+  `KMC3D` (cristal finito), que obliga a tocar `engine.py` y sus trayectorias congeladas.
+  Diseño original: (varias unidades por celda: hemo en vez de dímero), con un grafo cuyos
   nodos son (celda, posición en la base). El criterio de cara F pasa a ser el de redes
   conexas de Hartman-Perdok/Grimbergen, y el rango ya no basta.
 - **Grafo desde un CIF** y energías de par desde un campo de fuerzas (como MONTY).
@@ -442,7 +449,7 @@ Límites:
 | D1 | Unidad de crecimiento de β-hematina | dímero (una por celda) / hemo (base 2, F6) | dímero |
 | D2 | Modelo de tasas | Gilmer / simétrico (tipo MONTY) / intermedio / adaptativo (Nagpal) | Gilmer para validar Kossel; simétrico para β-hematina |
 | D3 | Origen de las energías de enlace | campo de fuerzas / ajuste a morfología y AFM / provisionales | provisionales (§7.3) |
-| D4 | ¿Se llenan los huecos cerrados? | no (la solución no llega) / sí | no (`allow_enclosed=False`) |
+| D4 | ¿Se llenan los huecos cerrados? | no (la solución no llega) / sí | no en `KMC3D` (`allow_enclosed=False`); sí en `SlabKMC`, como MONTY (decidido el 2026-11-24, §11.2) |
 | D5 | Fuerza impulsora | Δμ = ln(1 + σ) constante / reservorio finito (F4) | constante |
 | D6 | Conteo de enlaces al comparar con el 2D | geométrico (3D) / "altura exactamente igual" (2D) | cada línea con la suya; el 2D no se toca |
 | D7 | Escala de tiempo | k0 = 1 (tiempo en 1/k0) / calibrada con velocidades AFM | k0 = 1 |
@@ -502,3 +509,77 @@ Límites:
   Crecimiento por capas de hematina en (100) (AFM) e inhibición por cloroquina:
   candidato para calibrar en F3.
 - Nagpal et al. (2024), `references/modern_kMC/`. Tasas adaptativas del modelo 2D.
+- F. F. A. Hollander et al., *J. Phys. Chem. B* **103**, 8301 (1999) y **107**, 5680
+  (2003). Grafos cristalinos y análisis de redes conexas de las grasas (refs. 16 y 17
+  de MONTY): datos pendientes para la validación (§11).
+
+## 11. Validación con MONTY (2026-11-24)
+
+Objetivo: reproducir las curvas de fracción de adhesión S(Δμ) por cara de las tres
+grasas de MONTY (Figs. 2–4 de Boerrigter et al. 2004) sin tocar nada de lo anterior.
+Resultados en `notebooks/03_validacion_monty.ipynb` (salidas en
+`outputs/03_validacion_monty/`) y resumen en `docs/source/monty.md`.
+
+### 11.1 Código nuevo
+
+| Archivo | Contenido |
+|---|---|
+| `kmc3d/basis_graph.py` | `BasisGraph`: grafo con Z GU por celda (formato `.cfg` de MONTY), kcal/mol ↔ kT, base y enlaces desde la simetría (`from_centers`), energías de capa por corte (`slice_energies`, `best_termination`, `face_table`), celda de capa unimodular y reducida (`slice_cell`) |
+| `kmc3d/slab.py` | `SlabKMC`: superficie (hkl) periódica (modo *slab*, F2), clases (subred, código) con el código como máscara de bits de los enlaces, caja que crece por arriba y por abajo; `MontyRates(λ1, λ2)` |
+| `kmc3d/monty.py` | `sticking_point` y `sticking_grid` (para `run_parallel`), umbrales, referencia y comparación por grupos |
+| `scripts/run_monty.py`, `scripts/digitalizar_monty.py` | barridos reanudables; digitalización de las Figs. 2–4 |
+| `data/monty2004/` | `referencia_figuras.csv` (hecho) y grafos de las grasas (pendiente) |
+| `tests/test_basis_graph.py`, `tests/test_slab.py` | 20 tests nuevos (94 en total) |
+
+No cambia `engine.py`, `rates.py`, `graph.py`, `seeds.py`, `presets.py` ni `src/`:
+`TestNoDiffusionUnchanged` sigue pasando.
+
+### 11.2 Correspondencia con MONTY
+
+- Tasas (ecs. 11–12 con U_moth = 0, ΔV = 0): `SplitRates(a_mu = 1 − λ2, b_E = λ1)`
+  sobre x = E − E_cr, con E_cr = Σφ/Z.
+- Reglas STS (§2.3 del artículo): se une con al menos un enlace (también en un hueco
+  cerrado: el texto admite inclusiones) y no se despega una GU totalmente enlazada.
+  Equivalen a `allow_enclosed=True`. Con λ = ½ y la misma energía total en todas las
+  subredes, estas reglas hacen la dinámica **simétrica partícula-hueco**: crecer (hkl) a
+  +Δμ es lo mismo que disolver (−h−k−l) a −Δμ. Comprobado en el notebook 03, §2.3.
+- **Decisión del autor (2026-11-24): el slab sigue a MONTY.** `SlabKMC` y
+  `monty.sticking_point` usan `allow_enclosed=True` por defecto. `KMC3D` sigue con
+  `False` (D4). La regla de `KMC3D` rompe la simetría: en Kossel casi no se nota, pero
+  en un P1 polar de juguete cambia S hasta 0.14.
+
+### 11.3 Parte A: metodología (hecha)
+
+Resumen; los números están en el notebook 03, §4.
+- `MontyRates` coincide con `SplitRates` y el balance detallado es exacto.
+- S(Δμ = 0) → 0 como 1/N (cara lisa) o 1/√N (rugosa).
+- La simetría partícula-hueco se cumple al 0.2 % en Kossel y con |z| ≤ 1 en el P1.
+- Kossel se comporta según Hartman-Perdok:
+  - umbral de (001) en Δμ(S = 0.1) = 0.24–1.85 kT para φ = 2–5;
+  - (011) y (111) crecen desde Δμ = 0, cerca del límite de kinks 1 − e^(−Δμ).
+- El γ de Onsager queda entre las dos estimaciones de nucleación 2D.
+- El slab coincide con el cristal finito de `KMC3D` cuando este es grande: 98–99 % con
+  L = 48, frente a 65–78 % con L = 12.
+- La supercelda da las mismas curvas dentro de un 1 %.
+- Las caras opuestas coinciden en un P-1. En un P1 polar se separan un 5 % en S = ½,
+  pero no en el umbral: con enlaces de par, las caras opuestas rompen los mismos
+  enlaces. La prueba de MONTY comprueba el código más que la física.
+
+### 11.4 Parte B: grasas (pendiente)
+
+- Hecho: la referencia digitalizada de las Figs. 2–4 (`data/monty2004/referencia_figuras.csv`).
+- Falta transcribir los grafos (refs. 16 y 17) a `data/monty2004/<grasa>.json` (formato
+  en `data/monty2004/README.md`), comprobarlos (energía de red, E_att, morfología de
+  energía de unión de la Fig. 1) y barrer con `scripts/run_monty.py`.
+- Protocolos del artículo:
+  - β-16.16.16: 40 × 40, 10⁵ + 10⁵ eventos, 313 K;
+  - β′: 50 × 50, 2·10⁵ + 10⁶ eventos, 300 K;
+  - en todos, λ1 = λ2 = ½.
+- Criterios de aceptación:
+  - obligatorios: mismos grupos y mismo orden de umbrales; las caras rugosas con
+    S > ½ por debajo de unos 2 kcal/mol; las basales muy por encima; las caras opuestas
+    coinciden en β-16.16.16; los cocientes 13 : 60, 12 : 43, 7 : 13 y 2 : 12 tienen el
+    mismo orden;
+  - objetivo: Δμ(S = ½) por grupo dentro de ±20 %, o de ±1 kcal/mol cerca de 0.
+- Regla de los huecos cerrados: la de MONTY (`allow_enclosed=True`), ya por defecto en
+  el slab (§11.2).

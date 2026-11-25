@@ -106,6 +106,17 @@ Cada corrida se guarda en `outputs/<nombre>_dmu_<Δμ>_seed_<s>/` con
 `metadata.json` (grafo, tasas, parámetros, git commit), `snaps.npz` e `history.csv`.
 Se cargan con `kmc3d.io.load_run`. El §8 del notebook 01 las resume.
 
+Para las curvas de fracción de adhesión de MONTY (una superficie periódica por cara):
+
+```bash
+python scripts/run_monty.py --grafo kossel --phi 4 --caras "(001)" "(111)" \
+    --dmu 0 6 0.25 --semillas 1 2 3
+```
+
+Los resultados se añaden a `outputs/03_validacion_monty/barridos/<grafo>.csv`, y un
+barrido interrumpido se reanuda con la misma orden (ver `data/monty2004/README.md` para
+las grasas).
+
 ## Contenido
 
 | Ruta | Qué es |
@@ -124,15 +135,22 @@ Se cargan con `kmc3d.io.load_run`. El §8 del notebook 01 las resume.
 | `kmc3d/parallel.py` | corridas independientes en paralelo con `subprocess` |
 | `kmc3d/experiments.py` | experimentos de difusión del notebook 02 (Kossel, varilla) |
 | `kmc3d/io.py` | guardar/cargar corridas, config JSON -> motor |
+| `kmc3d/basis_graph.py` | `BasisGraph`: grafo con Z unidades por celda (formato de MONTY), kcal/mol ↔ kT, simetría, energías de capa por corte, celda de capa (`slice_cell`) |
+| `kmc3d/slab.py` | `SlabKMC`: superficie (hkl) con contorno periódico (modo *slab* de MONTY); `MontyRates` (λ1, λ2) |
+| `kmc3d/monty.py` | validación con MONTY: curvas S(Δμ) por cara, umbrales, comparación con la referencia |
 | `configs/` | `kossel_smooth`, `anisotropic_needle`, `beta_hematin` |
 | `scripts/run_3d.py` | corridas y barridos desde un config |
+| `scripts/run_monty.py` | barridos S(Δμ) por cara con `SlabKMC` (CSV reanudable) |
+| `scripts/digitalizar_monty.py` | digitaliza las Figs. 2–4 de MONTY y comprueba la referencia |
+| `data/monty2004/` | referencia digitalizada de MONTY y (pendiente) grafos de las grasas |
 | `notebooks/01_primeros_resultados.ipynb` | validación (Kossel), anisotropía, β-hematina |
 | `notebooks/02_difusion_visualizacion_calibracion.ipynb` | difusión, visualizaciones nuevas, calibración de β-hematina |
+| `notebooks/03_validacion_monty.ipynb` | validación con MONTY (Boerrigter et al. 2004): metodología y grasas |
 | `teoria/` | documento teórico (`teoria_3DkMC.tex`/`.pdf`) y `make_figures.py` |
 | `outputs/` | figuras y cachés de los notebooks |
 | `src/` | copia del motor (2+1)D de kMC_Malaria (ver [Código reutilizado](#código-reutilizado)) |
 | `docs/` | documentación con Sphinx (ver [Documentación](#documentación)) |
-| `tests/` | 74 tests, unos 20 s |
+| `tests/` | 94 tests, unos 25 s |
 
 ## Documentación
 
@@ -163,7 +181,10 @@ reconstrucción, la conservación, el determinismo y el pickle. También hay com
 físicas: signo de Δμ, caras lisas frente a rugosas y aguja con enlaces anisótropos. La
 difusión tiene balance detallado comprobado por enumeración, y sin difusión las
 trayectorias son idénticas a las de antes (`test_diffusion`). También hay tests de las
-áreas de Wulff y de facetas, de los criterios de calibración y del ejecutor paralelo.
+áreas de Wulff y de facetas, de los criterios de calibración y del ejecutor paralelo. El motor de
+superficie (`test_slab`, `test_basis_graph`) tiene sus propios tests: `MontyRates` frente
+a `SplitRates`, estado incremental frente a reconstrucción, energías de sitio contadas a
+mano con base > 1, supercelda y celda de capa.
 
 ## Rendimiento
 
