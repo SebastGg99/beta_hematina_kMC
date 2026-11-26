@@ -76,3 +76,8 @@ make doctest     # ejecuta los ejemplos >>> de la guía de uso
 ```
 
 En Windows se usa `make.bat html`. El logo se regenera con `python docs/make_logo.py`.
+
+La versión publicada, <https://sebastgg99.github.io/beta_hematina_kMC/>, la compila
+`.github/workflows/docs.yml` en GitHub Actions en cada push a `main`. Usa Python 3.14,
+los dos archivos de requisitos, `-W` y `make doctest`, y solo publica si todo pasa.
+Requisito, una sola vez: en GitHub, *Settings → Pages → Source* = «GitHub Actions».

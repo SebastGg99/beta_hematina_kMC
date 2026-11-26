@@ -170,6 +170,12 @@ make doctest     # comprueba los ejemplos >>> de la guía de uso
 `docs/build/` y `docs/source/generated/` se generan al compilar y no se versionan. El
 logo se regenera con `python docs/make_logo.py`.
 
+Se publica en <https://sebastgg99.github.io/beta_hematina_kMC/> con
+`.github/workflows/docs.yml`, que corre en cada push a `main` (o a mano, en la pestaña
+Actions). El workflow instala `requirements.txt` y `docs/requirements.txt` con Python
+3.14, compila con `-W` y pasa `make doctest`; si algo falla, no publica. Hay que
+configurar una sola vez **Settings → Pages → Source = «GitHub Actions»** en GitHub.
+
 ## Tests
 
 ```bash

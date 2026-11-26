@@ -1,0 +1,79 @@
+# Compila la documentación de Sphinx (docs/) y la publica en GitHub Pages.
+#
+# Se ejecuta en cada push a main y a mano desde la pestaña Actions («Run workflow»).
+# Usa el despliegue oficial de Pages con artefacto (upload-pages-artifact +
+# deploy-pages): no hace falta una rama gh-pages ni el archivo .nojekyll.
+#
+# Requisito, una sola vez: en GitHub, Settings → Pages → Build and deployment →
+# Source = «GitHub Actions». Sin eso, el paso de despliegue falla con
+# «Ensure GitHub Pages has been enabled». Página: https://sebastgg99.github.io/beta_hematina_kMC/
+
+name: Documentación
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permisos mínimos: leer el repositorio y desplegar en Pages (id-token lo pide deploy-pages)
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un solo despliegue a la vez; uno en curso no se cancela (recomendación de GitHub)
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      MPLBACKEND: Agg          # matplotlib sin pantalla (los ejemplos de uso.md la importan)
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v7
+
+      # Misma versión de Python con la que se verificó requirements.txt
+      - name: Instalar Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            docs/requirements.txt
+
+      # requirements.txt (numpy, pandas, matplotlib) hace falta para que autodoc importe
+      # kmc3d; sin él, las páginas de la API salen vacías. docs/requirements.txt: Sphinx,
+      # MyST y el tema.
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r docs/requirements.txt
+
+      # -W: cualquier aviso es un error (la regla de CLAUDE.md); --keep-going los muestra todos
+      - name: Compilar el HTML
+        working-directory: docs
+        run: make html SPHINXOPTS="-W --keep-going"
+
+      - name: Comprobar los ejemplos de la guía de uso (doctest)
+        working-directory: docs
+        run: make doctest
+
+      - name: Subir el sitio como artefacto de Pages
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs/build/html
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
