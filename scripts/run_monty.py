@@ -18,6 +18,13 @@ lanzando la misma orden. Los mapas de alturas finales van a un .pkl al lado del 
 
 Con un JSON de grasa, los valores por defecto (caras, T, caja, eventos, λ) salen de sus
 campos "faces" y "protocolo" (ver data/monty2004/README.md).
+
+Para añadir semillas sin repetir las mesetas (S ≈ 0 y S ≈ 1), `--solo-subida LO HI` se
+queda con los Δμ en que la curva media que ya está en el CSV va de LO a HI, más un punto a
+cada lado:
+
+    python scripts/run_monty.py --grafo data/monty2004/beta_16_16_16.json \
+        --dmu-kcal 0 20 0.5 --semillas 2 3 --solo-subida 0.02 0.98
 """
 
 import argparse
@@ -26,6 +33,7 @@ import sys
 import time
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,6 +50,26 @@ def rango(v):
         n = int(round((v[1] - v[0]) / v[2]))
         return [round(v[0] + k * v[2], 10) for k in range(n + 1)]
     return list(v)
+
+
+def subida(prev: pd.DataFrame, dcol: str, lo: float, hi: float) -> set:
+    """(cara, Δμ) de la zona de subida de cada curva media de `prev`.
+
+    Son los puntos con lo < S < hi, los que quedan entre ellos y uno más a cada lado. Las
+    mesetas (S ≈ 0 antes del umbral y S ≈ 1 después) no aportan a los cruces de S = 0.1,
+    0.5 y 0.9, así que no hace falta repetirlas con otras semillas.
+    """
+    keep = set()
+    mc = monty.mean_curves(prev, dcol)
+    for hkl, sub in mc.groupby("hkl", sort=False):
+        sub = sub.sort_values(dcol)
+        xs, ys = sub[dcol].to_numpy(), sub["S"].to_numpy()
+        idx = np.flatnonzero((ys > lo) & (ys < hi))
+        if not len(idx):
+            continue
+        for k in range(max(idx.min() - 1, 0), min(idx.max() + 1, len(xs) - 1) + 1):
+            keep.add((hkl, round(float(xs[k]), 9)))
+    return keep
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -61,6 +89,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--huecos-cerrados-fijos", action="store_true",
                    help="un hueco cerrado no se llena (regla de KMC3D); por defecto, reglas de MONTY")
     p.add_argument("--procesos", type=int, default=None)
+    p.add_argument("--solo-subida", type=float, nargs=2, default=None, metavar=("LO", "HI"),
+                   help="solo los Δμ donde la curva media del CSV va de LO a HI (más uno a cada lado)")
     p.add_argument("--salida", default=None, help="CSV de resultados (se añade)")
     return p
 
@@ -105,6 +135,11 @@ def main() -> None:
     if salida.exists():
         prev = pd.read_csv(salida)
         hechos = {(r["hkl"], round(float(r[dcol]), 9), int(r["rng_seed"])) for _, r in prev.iterrows()}
+    if args.solo_subida is not None:
+        if not salida.exists():
+            raise SystemExit("--solo-subida necesita un CSV con la curva ya barrida")
+        zona = subida(prev, dcol, *args.solo_subida)
+        tareas = [t for t in tareas if (t["hkl"], round(t[dcol], 9)) in zona]
     pend = [t for t in tareas if (t["hkl"], round(t[dcol], 9), t["rng_seed"]) not in hechos]
     print(f"{len(tareas)} puntos, {len(tareas) - len(pend)} ya hechos, {len(pend)} pendientes -> {salida}")
     if not pend:

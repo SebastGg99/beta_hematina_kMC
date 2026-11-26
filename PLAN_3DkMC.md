@@ -25,6 +25,8 @@ las visualizaciones nuevas (`render.py`) y la calibración de β-hematina con la
 morfología están en `notebooks/02_difusion_visualizacion_calibracion.ipynb` y en el
 §7.5. La validación con MONTY (superficie periódica, base > 1, curvas de fracción de
 adhesión de las tres grasas) está en `notebooks/03_validacion_monty.ipynb` y en el §11.
+Los grafos de las grasas se transcribieron y se barrieron el 2026-11-25 (§11.4). Los 19
+grupos de caras quedan dentro del objetivo, con dos discrepancias abiertas.
 
 ---
 
@@ -511,7 +513,8 @@ Límites:
 - Nagpal et al. (2024), `references/modern_kMC/`. Tasas adaptativas del modelo 2D.
 - F. F. A. Hollander et al., *J. Phys. Chem. B* **103**, 8301 (1999) y **107**, 5680
   (2003). Grafos cristalinos y análisis de redes conexas de las grasas (refs. 16 y 17
-  de MONTY): datos pendientes para la validación (§11).
+  de MONTY). Los grafos de la validación salen de la de 2003 (§11.4,
+  `references/papers/Hollander2003/`).
 
 ## 11. Validación con MONTY (2026-11-24)
 
@@ -528,8 +531,9 @@ Resultados en `notebooks/03_validacion_monty.ipynb` (salidas en
 | `kmc3d/slab.py` | `SlabKMC`: superficie (hkl) periódica (modo *slab*, F2), clases (subred, código) con el código como máscara de bits de los enlaces, caja que crece por arriba y por abajo; `MontyRates(λ1, λ2)` |
 | `kmc3d/monty.py` | `sticking_point` y `sticking_grid` (para `run_parallel`), umbrales, referencia y comparación por grupos |
 | `scripts/run_monty.py`, `scripts/digitalizar_monty.py` | barridos reanudables; digitalización de las Figs. 2–4 |
-| `data/monty2004/` | `referencia_figuras.csv` (hecho) y grafos de las grasas (pendiente) |
-| `tests/test_basis_graph.py`, `tests/test_slab.py` | 20 tests nuevos (94 en total) |
+| `data/monty2004/` | `referencia_figuras.csv` y grafos de las grasas (`<grasa>.json`, `comprobacion_grafos.csv`) |
+| `scripts/transcribir_grasas.py` | transcripción de las Tablas 2 y 3 de Hollander et al. 2003 y comprobación con redes conexas |
+| `tests/test_basis_graph.py`, `tests/test_slab.py`, `tests/test_grasas.py` | 26 tests nuevos (100 en total) |
 
 No cambia `engine.py`, `rates.py`, `graph.py`, `seeds.py`, `presets.py` ni `src/`:
 `TestNoDiffusionUnchanged` sigue pasando.
@@ -565,12 +569,111 @@ Resumen; los números están en el notebook 03, §4.
   pero no en el umbral: con enlaces de par, las caras opuestas rompen los mismos
   enlaces. La prueba de MONTY comprueba el código más que la física.
 
-### 11.4 Parte B: grasas (pendiente)
+### 11.4 Parte B: grasas (barridos hechos el 2026-11-25)
 
-- Hecho: la referencia digitalizada de las Figs. 2–4 (`data/monty2004/referencia_figuras.csv`).
-- Falta transcribir los grafos (refs. 16 y 17) a `data/monty2004/<grasa>.json` (formato
-  en `data/monty2004/README.md`), comprobarlos (energía de red, E_att, morfología de
-  energía de unión de la Fig. 1) y barrer con `scripts/run_monty.py`.
+- Referencia: las Figs. 2–4 digitalizadas (`data/monty2004/referencia_figuras.csv`).
+- Grafos: transcritos de Hollander et al. 2003 (ref. 17, Tablas 1–3) con
+  `scripts/transcribir_grasas.py` a `data/monty2004/<grasa>.json`. Decisiones y erratas
+  del artículo en `data/monty2004/README.md`.
+  - β-16.16.16, β′-10.12.10 y β′-16.16.14: Z = 2, 8 y 8 GU por celda; 8, 32 y 48
+    enlaces; E_cr = 88.25, 63.30 y 91.61 kcal/mol.
+  - La E_att de la red conexa más fuerte reproduce la Tabla 3:
+    - β′-10.12.10: las 5 caras entre −1.8 % y +2.9 %;
+    - β′-16.16.14: 12 de 13 caras dentro del 0.4 % (la (112) es una errata probable);
+    - β-16.16.16: entre +0.2 % y +2.9 % (la Tabla 3 se calculó con otras energías).
+  - Morfología de energía de unión (fila superior de la Fig. 1; notebook 03, §3.2).
+    MONTY la calculó con Cerius², con cortes planos y el campo de fuerzas completo.
+    Aquí se calcula solo con los enlaces de la Tabla 2, de dos formas: con el mejor
+    corte plano (|h|, |k| ≤ 3, |l| ≤ 5) y con las redes conexas. Las tres formas salen
+    con el mismo aspecto que en la Fig. 1: placa alargada, aguja y hexágono.
+    - β-16.16.16: las superiores coinciden ({2-1-3} y {1-1-1}). Las laterales salen
+      {10-1} (52.6 kcal/mol) en vez de {20-3} + {30-5} (111.3); {10-1} es la que dan
+      las redes conexas y las simulaciones.
+    - β′-10.12.10: la basal {002} y las laterales {101} coinciden. Las superiores
+      {011} y {110} tienen la misma E_att que {112} (179.2).
+    - β′-16.16.14: salen {111} (196.0) en vez de {110} (199.1) y {100} o {203} en vez
+      de {60-2} (301).
+    - La versión con redes conexas da las formas de la Tabla 3 de Hollander.
+- Corrección numérica en `SlabKMC`. No cambia la física.
+  - Problema: con las grasas, las tasas de las clases van de 1e-35 a 1e13. Al restar
+    tasas grandes, el total del árbol de Fenwick perdía precisión (cancelación
+    catastrófica), hasta elegir una clase vacía (`IndexError`).
+  - Solución: el árbol se reconstruye desde los pesos exactos cuando la mayor tasa
+    retirada supera 10⁶ veces el total.
+  - Test: `test_slab.TestSlabPhysics.test_rounding_with_strong_bonds`.
+  - `KMC3D` (`engine.py`, congelado) actualiza su árbol de la misma forma y no se tocó.
+    Si la clase elegida está vacía, ya recurre a la selección exacta, pero no corrige
+    la pérdida de precisión del total ni un índice fuera de rango. Solo importa si las
+    tasas abarcan muchos órdenes de magnitud.
+- Barridos con el protocolo del artículo (`outputs/03_validacion_monty/barridos/<grasa>.csv`,
+  notebook 03, §3.3):
+  - la semilla 1 cubre toda la rejilla de Δμ;
+  - las semillas 2 y 3 cubren la zona de subida de cada curva
+    (`run_monty.py --solo-subida 0.02 0.98`), que decide los cruces;
+  - entre semillas, Δμ(S = ½) cambia con una desviación típica de 0.002–0.03 kcal/mol
+    (mediana por grasa) y de 0.23 como máximo, en una basal.
+
+  Δμ en kcal/mol en S = ½, media de las 3 semillas; para las basales, en S = 0.1,
+  comparado con el umbral del texto:
+
+  | Grasa | Grupo: caras | MONTY | kmc3d |
+  |---|---|---|---|
+  | β-16.16.16 | 1: (1-11) | 0.95 | 0.93 |
+  | | 2: (-110) (1-10) | 2.25 | 2.05 |
+  | | 3: (-111) (1-1-1) | 4.53 | 4.28 |
+  | | 4: (2-1-3) (2-1-2) | 9.34 | 9.44 |
+  | | 5: (0-10) (0-11) (010) (2-1-1) (2-10) (0-1-1) | 9.59 | 9.60 |
+  | | 6: (100) (10-1) (-101) (20-3) (30-5) | 15.80 | 15.81 |
+  | | 7: (001), S = 0.1 | 60 | 59.6 |
+  | β′-10.12.10 | 1: (011) (013) (110) (112) (310) (610) (611) | 0.35 | 0.60 (0.46–0.70) |
+  | | 2: (211) | 4.97 | 4.91 |
+  | | 3: (101) (200) (201) | 14.64 | 14.38 |
+  | | 4: (002) | 46.07 | 41.41 |
+  | β′-16.16.14 | 1: (020) (0-21) (0-22) (0-11) | 0.54 | 0.48 |
+  | | 2: (310) (313) (314) (315) (316) (317) | 2.20 | 1.85 |
+  | | 3: (111) (112) (113) (1-14) | 3.17 | 3.77 (2.80–4.10) |
+  | | 4: (110) (11-1) | 4.46 | 4.09 |
+  | | 5: (205) (204) | 5.57 | 5.80 |
+  | | 6: (203) | 5.86 | 6.22 |
+  | | 7: (100) (202) (201) (30-1) | 6.90 | 6.80 |
+  | | 8: (001), S = 0.1 | 62 | 62.2 |
+
+- Criterios:
+  - objetivo (±20 % o ±1 kcal/mol): lo cumplen los 19 grupos;
+  - orden de los grupos: el mismo en las tres grasas;
+  - caras rugosas con S > ½ por debajo de 2 kcal/mol y basales muy por encima: sí;
+  - caras opuestas de β-16.16.16: coinciden ((-110)/(1-10): 2.06/2.05;
+    (-111)/(1-1-1): 4.28/4.29);
+  - cocientes, con S = 0.1: kmc3d da 0.242, 0.327, 0.557–0.568 y 0.278 para
+    13 : 60, 12 : 43, 7 : 13 y 2 : 12. Las figuras de MONTY dan 0.242, 0.299,
+    0.546–0.569 y 0.280, en el mismo orden. Con los números del texto, 2 : 12 pasa delante
+    de 13 : 60, porque el texto da 2 kcal/mol para (211) y su Fig. 3 da 3.7;
+  - mismos grupos: no del todo en β′-16.16.14 (ver abajo).
+- Lo que no cuadra:
+  - **β′-16.16.14, grupos 2 a 4.** Entre 1 y 5 kcal/mol, MONTY dibuja cuatro curvas
+    (S = ½ en 1.91, ~2.35, 3.17 y 4.46) y kmc3d tres:
+    - (310)–(317), todas iguales, en 1.85;
+    - (1-14), sola, en 2.80;
+    - (111), (112) y (113) en 4.09–4.10, junto con (110) y (11-1), cuando MONTY las
+      etiqueta con (1-14).
+
+    Estas cinco caras están en la zona [1-10] y sus mejores cortes planos tienen casi la
+    misma energía (E_att 196–199 kcal/mol), aunque la red conexa más fuerte de (110) da
+    254.7. La causa no está resuelta. La topología la fijan la Tabla 2 y la simetría
+    (reproduce la Tabla 3), y las posiciones reconstruidas solo deciden el corte
+    inicial. MONTY pudo usar otras energías, como en β-16.16.16, u otro grafo. No es
+    ruido: con 3 semillas, (111) y (110) quedan a 0.01 kcal/mol y (1-14) a 1.3.
+  - **β′-10.12.10, (002):** −10 % (41.4 frente a 46.1 en S = ½; 40.1 frente a 44.6
+    en S = 0.1, y el texto da 43). Las otras dos basales coinciden dentro del 1 %. El
+    etiquetado elegido (punto 4 del README de los datos) solo cambia a qué GU de la capa
+    inferior va el enlace s, y en (002) cada GU tiene igualmente un enlace s hacia
+    abajo, así que no debería influir. No es ruido: entre semillas, Δμ(S = ½) tiene una
+    desviación típica de 0.13 kcal/mol.
+- Sensibilidad en β-16.16.16. Con las energías compatibles con la Tabla 3 (p = 31.35,
+  r2 = 28.3), los grupos 1–3 empeoran: 0.80, 1.85 y 3.88, frente a 0.95, 2.25 y 4.53 en
+  MONTY y 0.93, 2.08 y 4.30 con la Tabla 2. Los grupos 4–6 casi no cambian. MONTY usó,
+  con toda probabilidad, las energías de la Tabla 2, que son las de los JSON.
+- Pendiente: la causa de las dos discrepancias.
 - Protocolos del artículo:
   - β-16.16.16: 40 × 40, 10⁵ + 10⁵ eventos, 313 K;
   - β′: 50 × 50, 2·10⁵ + 10⁶ eventos, 300 K;

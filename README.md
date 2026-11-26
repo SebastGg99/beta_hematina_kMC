@@ -115,7 +115,8 @@ python scripts/run_monty.py --grafo kossel --phi 4 --caras "(001)" "(111)" \
 
 Los resultados se añaden a `outputs/03_validacion_monty/barridos/<grafo>.csv`, y un
 barrido interrumpido se reanuda con la misma orden (ver `data/monty2004/README.md` para
-las grasas).
+las grasas). Para añadir semillas solo donde la curva sube, sin repetir las mesetas
+S ≈ 0 y S ≈ 1, se añade `--solo-subida 0.02 0.98`.
 
 ## Contenido
 
@@ -142,7 +143,8 @@ las grasas).
 | `scripts/run_3d.py` | corridas y barridos desde un config |
 | `scripts/run_monty.py` | barridos S(Δμ) por cara con `SlabKMC` (CSV reanudable) |
 | `scripts/digitalizar_monty.py` | digitaliza las Figs. 2–4 de MONTY y comprueba la referencia |
-| `data/monty2004/` | referencia digitalizada de MONTY y (pendiente) grafos de las grasas |
+| `scripts/transcribir_grasas.py` | transcribe los grafos de las grasas de MONTY (Tablas 2 y 3 de Hollander et al. 2003) a `data/monty2004/*.json` y los comprueba |
+| `data/monty2004/` | referencia digitalizada de MONTY y grafos de las grasas (Hollander et al. 2003) |
 | `notebooks/01_primeros_resultados.ipynb` | validación (Kossel), anisotropía, β-hematina |
 | `notebooks/02_difusion_visualizacion_calibracion.ipynb` | difusión, visualizaciones nuevas, calibración de β-hematina |
 | `notebooks/03_validacion_monty.ipynb` | validación con MONTY (Boerrigter et al. 2004): metodología y grasas |
@@ -150,7 +152,7 @@ las grasas).
 | `outputs/` | figuras y cachés de los notebooks |
 | `src/` | copia del motor (2+1)D de kMC_Malaria (ver [Código reutilizado](#código-reutilizado)) |
 | `docs/` | documentación con Sphinx (ver [Documentación](#documentación)) |
-| `tests/` | 94 tests, unos 25 s |
+| `tests/` | 100 tests, unos 25 s |
 
 ## Documentación
 
@@ -184,7 +186,9 @@ trayectorias son idénticas a las de antes (`test_diffusion`). También hay test
 áreas de Wulff y de facetas, de los criterios de calibración y del ejecutor paralelo. El motor de
 superficie (`test_slab`, `test_basis_graph`) tiene sus propios tests: `MontyRates` frente
 a `SplitRates`, estado incremental frente a reconstrucción, energías de sitio contadas a
-mano con base > 1, supercelda y celda de capa.
+mano con base > 1, supercelda y celda de capa. `test_grasas` comprueba los grafos de las
+grasas de MONTY frente a la Tabla 3 de Hollander et al. (2003) y su morfología de energía
+de unión (Fig. 1 de MONTY).
 
 ## Rendimiento
 

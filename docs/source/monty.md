@@ -169,11 +169,68 @@ de cada grupo).
 ### Estado
 
 Las energías de par de las grasas (kcal/mol, campo de fuerzas CVFF) no están en el
-artículo de MONTY sino en sus refs. 16 y 17 (Hollander et al., *J. Phys. Chem. B*
-**103**, 8301 (1999) y **107**, 5680 (2003)). Cuando estén transcritas en
-`data/monty2004/<grasa>.json` (formato en `data/monty2004/README.md`), el §3.2 del
-notebook 03 comprueba el grafo, dibuja la morfología de energía de unión (fila superior
-de la Fig. 1) y compara las curvas con la referencia.
+artículo de MONTY sino en su ref. 17 (Hollander et al., *J. Phys. Chem. B* **107**, 5680
+(2003)). `scripts/transcribir_grasas.py` las transcribió el 2026-11-25 a
+`data/monty2004/<grasa>.json`. El notebook 03, §3.2–3.3, compara los grafos y las curvas
+con el artículo. Decisiones y erratas del artículo en
+`data/monty2004/README.md`.
+
+- **Grafos.** Z = 2, 8 y 8 GU por celda y E_cr = 88.25, 63.30 y 91.61 kcal/mol. La
+  E_att de la red conexa más fuerte reproduce la Tabla 3 de Hollander:
+  - β′-10.12.10: entre −1.8 % y +2.9 %;
+  - β′-16.16.14: 12 de 13 caras dentro del 0.4 % (la (112) es una errata probable);
+  - β-16.16.16: entre +0.2 % y +2.9 %.
+- **Corrección numérica.** Con estas energías, las tasas de `SlabKMC` abarcan 48
+  órdenes de magnitud, y el total del árbol de Fenwick perdía precisión. Ahora se
+  reconstruye desde los pesos exactos cuando hace falta. La física no cambia.
+- **Morfología de energía de unión** (fila superior de la Fig. 1). Se calcula solo con
+  los enlaces de la Tabla 2, con cortes planos y con redes conexas. La Fig. 1 se hizo con
+  Cerius² y el campo de fuerzas completo. Las tres grasas tienen el mismo aspecto que en
+  la Fig. 1: placa alargada, aguja y hexágono.
+  - Coinciden las basales, las superiores de β-16.16.16 ({2-1-3}, {1-1-1}) y las
+    laterales de β′-10.12.10 ({101}).
+  - β-16.16.16 da {10-1} en vez de {20-3} + {30-5}, y β′-16.16.14 da {111} y {100} en
+    vez de {110} y {60-2}.
+  - En β′-10.12.10, {011}, {110} y {112} tienen la misma E_att.
+
+```{figure} ../../outputs/03_validacion_monty/grasas_energia_union.png
+:width: 100%
+:alt: Morfologías de energía de unión de las tres grasas frente a la Fig. 1 de MONTY
+
+Arriba, la fila superior de la Fig. 1 de MONTY. Abajo, el poliedro de energía de unión
+de kmc3d con cortes planos y con redes conexas, visto a lo largo de la normal de la cara
+basal y con b vertical.
+```
+
+- **Barridos.** Protocolo del artículo, en `outputs/03_validacion_monty/barridos/`
+  (notebook 03, §3.3). La semilla 1 cubre toda la rejilla y las semillas 2 y 3 la zona
+  de subida de cada curva (`run_monty.py --solo-subida`). Entre semillas, Δμ(S = ½)
+  cambia con una desviación típica de 0.002–0.03 kcal/mol (mediana por grasa).
+  Δμ en S = ½, en kcal/mol (MONTY → kmc3d):
+  - β-16.16.16: 0.95 → 0.93, 2.25 → 2.05, 4.53 → 4.28, 9.34 → 9.44, 9.59 → 9.60 y
+    15.80 → 15.81. La basal (001) da S = 0.1 en 59.6, y el texto da 60.
+  - β′-10.12.10: 0.35 → 0.60, 4.97 → 4.91, 14.64 → 14.38 y 46.07 → 41.41 (002).
+  - β′-16.16.14: 0.54 → 0.48, 2.20 → 1.85, 3.17 → 3.77, 4.46 → 4.09, 5.57 → 5.80,
+    5.86 → 6.22 y 6.90 → 6.80. La basal (001) da S = 0.1 en 62.2, y el texto da 62.
+- **Criterios.**
+  - Se cumplen el objetivo en los 19 grupos y el orden de los grupos.
+  - Las caras rugosas y las basales están donde deben, y las caras opuestas coinciden.
+  - Los cocientes de umbrales coinciden con los de las figuras de MONTY.
+- **Lo que no cuadra.**
+  - En β′-16.16.14, kmc3d junta (111), (112) y (113) con (110) y (11-1), mientras que
+    MONTY las dibuja con (1-14).
+  - La basal (002) de β′-10.12.10 queda un 10 % por debajo.
+
+  Ninguna de las dos es ruido estadístico. Detalles en `PLAN_3DkMC.md`, §11.4.
+
+```{figure} ../../outputs/03_validacion_monty/betap_16_16_14_S_vs_dmu.png
+:width: 80%
+:alt: Curvas S(Δμ) de β′-16.16.14 frente a la Fig. 4 de MONTY
+
+β′-16.16.14: curvas de kmc3d (líneas, media de las semillas) y valores de MONTY en
+S = 0.1, 0.5 y 0.9 (círculos). Las curvas de β-16.16.16 y β′-10.12.10 están en el
+notebook 03.
+```
 
 Criterios de aceptación:
 - **obligatorios** (cualitativos):

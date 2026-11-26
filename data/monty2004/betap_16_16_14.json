@@ -1,0 +1,571 @@
+{
+ "name": "betap_16_16_14",
+ "fuente": "Hollander, Boerrigter, van de Streek, Bennema y Meekes, J. Phys. Chem. B 107, 5680 (2003), Tablas 1-3 (ref. 17 de MONTY)",
+ "units": "kcal/mol",
+ "cell": {
+  "a": 16.5,
+  "b": 7.5,
+  "c": 81.6,
+  "alpha": 90.0,
+  "beta": 90.3,
+  "gamma": 90.0
+ },
+ "ajuste": "celda de la Tabla 1; los [uvw] de la Tabla 2 se pasan al marco del JSON con la matriz [[1, 0, 0], [0, 1, 0], [0, 0, 1]] (filas = vectores nuevos en la base de la Tabla 2)",
+ "posiciones": "RECONSTRUCCIÓN, no hay estructura publicada: M3 y M8 en (0.1866, 0.7516, 0.7556) y (0.4922, 0.6257, 0.7987), el resto por simetría C2 (ver posiciones_16_16_14 en scripts/transcribir_grasas.py). Solo deciden el corte plano inicial; la topología del grafo es la misma para todas las posiciones probadas",
+ "centers": [
+  {
+   "label": "M1",
+   "frac": [
+    0.8134,
+    0.7516,
+    0.2444
+   ]
+  },
+  {
+   "label": "M2",
+   "frac": [
+    0.0078,
+    0.1257,
+    0.2013
+   ]
+  },
+  {
+   "label": "M3",
+   "frac": [
+    0.1866,
+    0.7516,
+    0.7556
+   ]
+  },
+  {
+   "label": "M4",
+   "frac": [
+    0.9922,
+    0.1257,
+    0.7987
+   ]
+  },
+  {
+   "label": "M5",
+   "frac": [
+    0.3134,
+    0.2516,
+    0.2444
+   ]
+  },
+  {
+   "label": "M6",
+   "frac": [
+    0.5078,
+    0.6257,
+    0.2013
+   ]
+  },
+  {
+   "label": "M7",
+   "frac": [
+    0.6866,
+    0.2516,
+    0.7556
+   ]
+  },
+  {
+   "label": "M8",
+   "frac": [
+    0.4922,
+    0.6257,
+    0.7987
+   ]
+  }
+ ],
+ "symops": [
+  {
+   "W": [
+    [
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     0,
+     1
+    ]
+   ],
+   "t": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "W": [
+    [
+     -1,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     0,
+     -1
+    ]
+   ],
+   "t": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "W": [
+    [
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     0,
+     1
+    ]
+   ],
+   "t": [
+    0.5,
+    0.5,
+    0.0
+   ]
+  },
+  {
+   "W": [
+    [
+     -1,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     0,
+     -1
+    ]
+   ],
+   "t": [
+    0.5,
+    0.5,
+    0.0
+   ]
+  }
+ ],
+ "bonds_by_position": [
+  {
+   "from": 2,
+   "to_frac": [
+    0.1866,
+    -0.2484,
+    0.7556
+   ],
+   "energy": 15.7,
+   "label": "pA"
+  },
+  {
+   "from": 7,
+   "to_frac": [
+    0.4922,
+    -0.3743,
+    0.7987
+   ],
+   "energy": 17.0,
+   "label": "pB"
+  },
+  {
+   "from": 6,
+   "to_frac": [
+    0.9922,
+    1.1257,
+    0.7987
+   ],
+   "energy": 22.8,
+   "label": "q1"
+  },
+  {
+   "from": 6,
+   "to_frac": [
+    0.9922,
+    0.1257,
+    0.7987
+   ],
+   "energy": 40.8,
+   "label": "q2"
+  },
+  {
+   "from": 7,
+   "to_frac": [
+    0.6866,
+    1.2516,
+    0.7556
+   ],
+   "energy": 20.8,
+   "label": "r1"
+  },
+  {
+   "from": 7,
+   "to_frac": [
+    0.6866,
+    0.2516,
+    0.7556
+   ],
+   "energy": 40.7,
+   "label": "r2"
+  },
+  {
+   "from": 1,
+   "to_frac": [
+    -0.4922,
+    0.6257,
+    0.2013
+   ],
+   "energy": 8.84,
+   "label": "u"
+  },
+  {
+   "from": 0,
+   "to_frac": [
+    0.3134,
+    1.2516,
+    0.2444
+   ],
+   "energy": 8.37,
+   "label": "v"
+  },
+  {
+   "from": 1,
+   "to_frac": [
+    -0.4922,
+    -0.3743,
+    0.2013
+   ],
+   "energy": 2.7,
+   "label": "x"
+  },
+  {
+   "from": 0,
+   "to_frac": [
+    0.3134,
+    0.2516,
+    0.2444
+   ],
+   "energy": 2.68,
+   "label": "y"
+  },
+  {
+   "from": 0,
+   "to_frac": [
+    -0.3134,
+    0.2516,
+    0.7556
+   ],
+   "energy": 1.67,
+   "label": "sA"
+  },
+  {
+   "from": 0,
+   "to_frac": [
+    1.4922,
+    0.6257,
+    -0.2013
+   ],
+   "energy": 1.17,
+   "label": "sB"
+  }
+ ],
+ "tabla2_hollander": [
+  {
+   "enlace": "pA",
+   "moleculas": "M3.M3",
+   "uvw": [
+    0,
+    -1,
+    0
+   ],
+   "energia": 15.7
+  },
+  {
+   "enlace": "pB",
+   "moleculas": "M8.M8",
+   "uvw": [
+    0,
+    -1,
+    0
+   ],
+   "energia": 17.0
+  },
+  {
+   "enlace": "q1",
+   "moleculas": "M7.M4",
+   "uvw": [
+    0,
+    1,
+    0
+   ],
+   "energia": 22.8
+  },
+  {
+   "enlace": "q2",
+   "moleculas": "M7.M4",
+   "uvw": [
+    0,
+    0,
+    0
+   ],
+   "energia": 40.8
+  },
+  {
+   "enlace": "r1",
+   "moleculas": "M8.M7",
+   "uvw": [
+    0,
+    1,
+    0
+   ],
+   "energia": 20.8
+  },
+  {
+   "enlace": "r2",
+   "moleculas": "M8.M7",
+   "uvw": [
+    0,
+    0,
+    0
+   ],
+   "energia": 40.7
+  },
+  {
+   "enlace": "u",
+   "moleculas": "M2.M6",
+   "uvw": [
+    -1,
+    0,
+    0
+   ],
+   "energia": 8.84
+  },
+  {
+   "enlace": "v",
+   "moleculas": "M1.M5",
+   "uvw": [
+    0,
+    1,
+    0
+   ],
+   "energia": 8.37
+  },
+  {
+   "enlace": "x",
+   "moleculas": "M2.M6",
+   "uvw": [
+    -1,
+    -1,
+    0
+   ],
+   "energia": 2.7
+  },
+  {
+   "enlace": "y",
+   "moleculas": "M1.M5",
+   "uvw": [
+    0,
+    0,
+    0
+   ],
+   "energia": 2.68
+  },
+  {
+   "enlace": "sA",
+   "moleculas": "M1.M7",
+   "uvw": [
+    -1,
+    0,
+    0
+   ],
+   "energia": 1.67
+  },
+  {
+   "enlace": "sB",
+   "moleculas": "M1.M8",
+   "uvw": [
+    1,
+    0,
+    -1
+   ],
+   "energia": 1.17
+  }
+ ],
+ "tabla3_hollander": [
+  {
+   "cara": "B1",
+   "hkl_hollander": "(001)",
+   "hkl": "(001)",
+   "E_att": 2.35,
+   "redes_conexas": 4
+  },
+  {
+   "cara": "B2",
+   "hkl_hollander": "(002)",
+   "hkl": "(002)",
+   "E_att": 5.69,
+   "redes_conexas": 3
+  },
+  {
+   "cara": "S1",
+   "hkl_hollander": "(204)",
+   "hkl": "(204)",
+   "E_att": 171.44,
+   "redes_conexas": 3
+  },
+  {
+   "cara": "S2",
+   "hkl_hollander": "(203)",
+   "hkl": "(203)",
+   "E_att": 168.16,
+   "redes_conexas": 3
+  },
+  {
+   "cara": "T1A",
+   "hkl_hollander": "(113)",
+   "hkl": "(113)",
+   "E_att": 196.17,
+   "redes_conexas": 4
+  },
+  {
+   "cara": "T1B",
+   "hkl_hollander": "(112)",
+   "hkl": "(112)",
+   "E_att": 254.75,
+   "redes_conexas": 8
+  },
+  {
+   "cara": "T1C",
+   "hkl_hollander": "(111)",
+   "hkl": "(111)",
+   "E_att": 196.17,
+   "redes_conexas": 7
+  },
+  {
+   "cara": "T1D",
+   "hkl_hollander": "(110)",
+   "hkl": "(110)",
+   "E_att": 254.75,
+   "redes_conexas": 3
+  },
+  {
+   "cara": "T3A",
+   "hkl_hollander": "(316)",
+   "hkl": "(316)",
+   "E_att": 278.16,
+   "redes_conexas": 5
+  },
+  {
+   "cara": "T3B",
+   "hkl_hollander": "(315)",
+   "hkl": "(315)",
+   "E_att": 278.16,
+   "redes_conexas": 5
+  },
+  {
+   "cara": "T3C",
+   "hkl_hollander": "(314)",
+   "hkl": "(314)",
+   "E_att": 279.22,
+   "redes_conexas": 2
+  },
+  {
+   "cara": "T3D",
+   "hkl_hollander": "(313)",
+   "hkl": "(313)",
+   "E_att": 297.15,
+   "redes_conexas": 1
+  },
+  {
+   "cara": "T3E",
+   "hkl_hollander": "(317)",
+   "hkl": "(317)",
+   "E_att": 299.15,
+   "redes_conexas": 1
+  }
+ ],
+ "celda_primitiva": [
+  [
+   0.5,
+   -0.5,
+   0.0
+  ],
+  [
+   0.5,
+   0.5,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "faces": [
+  "(020)",
+  "(0-21)",
+  "(0-22)",
+  "(0-11)",
+  "(310)",
+  "(313)",
+  "(314)",
+  "(315)",
+  "(316)",
+  "(317)",
+  "(111)",
+  "(112)",
+  "(113)",
+  "(1-14)",
+  "(110)",
+  "(11-1)",
+  "(205)",
+  "(204)",
+  "(203)",
+  "(100)",
+  "(202)",
+  "(201)",
+  "(30-1)",
+  "(001)"
+ ],
+ "protocolo": {
+  "size": [
+   50,
+   50
+  ],
+  "n_equil": 200000,
+  "n_sample": 1000000,
+  "T": 300.0,
+  "lambda1": 0.5,
+  "lambda2": 0.5
+ },
+ "notes": "Grafo de enlaces de Hollander et al. 2003 (CVFF, kcal/mol). Comprobación frente a la Tabla 3 en data/monty2004/comprobacion_grafos.csv; generado por scripts/transcribir_grasas.py"
+}

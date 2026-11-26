@@ -68,7 +68,7 @@ al. 2004) con el motor de superficie `SlabKMC` (ver [](monty.md)).
 |---|---|
 | 1 | Configuración |
 | 2 | Parte A (metodología): tasas de MONTY frente a `SplitRates`, equilibrio, curvas $S(\Delta\mu)$ de Kossel, energía de borde frente a Onsager, superficie frente a cristal finito, invariancia de supercelda, caras opuestas |
-| 3 | Parte B (grasas): referencia digitalizada de las Figs. 2–4 y comparación (pendiente de los grafos de las grasas) |
+| 3 | Parte B (grasas): referencia digitalizada de las Figs. 2–4, grafos de Hollander et al. 2003 (Tabla 3 y morfología de energía de unión de la Fig. 1) y curvas S(Δμ) frente a MONTY |
 | 4 | Conclusiones y pendientes |
 
 Las corridas se guardan en `outputs/03_validacion_monty/cache/`, y los barridos de

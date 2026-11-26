@@ -32,7 +32,10 @@ Eventos y tasas (condición STS de MONTY, §2.3):
 Clases (n-fold way): como en `KMC3D`, pero el código de un sitio es la MÁSCARA DE BITS
 de sus enlaces (bit k = el vecino k de su subred está ocupado), que es el índice de la
 tabla de consulta de MONTY (§2.4). La clave de clase es (código, subred, tipo). El peso
-de cada clase está en un árbol de Fenwick (`kmc3d.fenwick.Fenwick`).
+de cada clase está en un árbol de Fenwick (`kmc3d.fenwick.Fenwick`). Con energías de
+decenas de kT (las grasas) las tasas de clase abarcan unos 50 órdenes de magnitud: el
+árbol se reconstruye antes de elegir si desde la última reconstrucción se restó una
+tasa mucho mayor que el total, para que el redondeo no sesgue la elección.
 
 Medidas de MONTY (§2.6): uniones N_growth y despegues N_etch desde el último
 `reset_counters()` (fin del equilibrado), fracción de adhesión
@@ -56,6 +59,13 @@ from .geometry import hkl_label, reduce_hkl
 
 ATTACH, DETACH = 0, 1
 EVENT_NAMES = {ATTACH: "attach", DETACH: "detach"}
+
+# Si desde la última reconstrucción del Fenwick se restó la tasa de una clase mayor que
+# _CANCEL veces el peso total, el árbol se reconstruye antes de elegir el evento. Con
+# energías de decenas de kT (las grasas de MONTY) las tasas de clase van de 1e-35 a 1e13:
+# restar una tasa enorme deja en los nodos del árbol un residuo de redondeo (~1e-16 de
+# esa tasa) comparable al total, y la elección se sesga o cae fuera de las clases.
+_CANCEL = 1e6
 
 
 class MontyRates:
@@ -358,6 +368,7 @@ class SlabKMC:
         self._pos_of = _int_array("i", pos_of)
         self._fw = Fenwick(max(64, 2 * len(self._key_of)))
         self._fw.rebuild(self._exact_weights())
+        self._peak = [0.0]          # mayor tasa restada del Fenwick desde la última reconstrucción
         self._make_hot_path()
 
     def site_energy(self, s: int, code: int) -> float:
@@ -390,6 +401,11 @@ class SlabKMC:
     def _exact_weights(self) -> List[float]:
         return [len(m) * r for m, r in zip(self._members, self._rate_of)]
 
+    def _rebuild_weights(self, capacity: int = 0) -> None:
+        """Fenwick desde los pesos exactos: borra el error de redondeo acumulado."""
+        self._fw.rebuild(self._exact_weights(), capacity=capacity)
+        self._peak[0] = 0.0
+
     def _make_hot_path(self) -> None:
         """Funciones internas de un evento con variables locales (más rápido)."""
         occ, code = self._occ, self._code
@@ -402,11 +418,12 @@ class SlabKMC:
         nbr = self._nbr
         fw = self._fw
         fw_add = fw.add
+        peak = self._peak
 
         def create_class(key: int) -> int:
             cid = self._new_class(key)
             if cid >= fw.n:                       # ampliar capacidad del Fenwick
-                fw.rebuild(self._exact_weights(), capacity=2 * fw.n)
+                self._rebuild_weights(capacity=2 * fw.n)
             return cid
 
         def reclass(i: int) -> None:
@@ -431,7 +448,10 @@ class SlabKMC:
                     p = pos_of[i]
                     m[p] = last
                     pos_of[last] = p
-                fw_add(old, -rate_of[old])
+                r = rate_of[old]
+                fw_add(old, -r)
+                if r > peak[0]:                   # posible cancelación (ver _CANCEL)
+                    peak[0] = r
                 cls_of[i] = -1
             if key >= 0:
                 cid = cid_of_key.get(key)
@@ -478,6 +498,7 @@ class SlabKMC:
         w = self._exact_weights()
         total = sum(w)
         self._fw.rebuild(w)
+        self._peak[0] = 0.0
         if total <= 0.0:
             return -1
         target, acc = u * total, 0.0
@@ -490,9 +511,11 @@ class SlabKMC:
     def step(self) -> bool:
         """Ejecuta un evento BKL. Devuelve False si no hay eventos posibles."""
         fw = self._fw
+        if self._peak[0] > _CANCEL * fw.total:  # residuo de redondeo comparable al total
+            self._rebuild_weights()
         total = fw.total
         if not total > 0.0:
-            fw.rebuild(self._exact_weights())
+            self._rebuild_weights()
             total = fw.total
             if not total > 0.0:
                 return False
@@ -503,7 +526,9 @@ class SlabKMC:
             u2, u3 = self._uniforms(2)
             self.t += self.time_scale / total
         cid = fw.find(u2 * total)
-        members = self._members[cid]
+        # Por redondeo, `find` puede caer en una clase vacía o, si el total supera la suma
+        # del árbol, en una posición sin clase (cid >= número de clases): selección exacta
+        members = self._members[cid] if cid < len(self._members) else None
         if not members:
             cid = self._exact_class(u2)
             if cid < 0:
@@ -525,7 +550,7 @@ class SlabKMC:
             if i // self._layer < self.frozen + self.reach + 1:
                 self._grow_bottom()
         if self.n_events % self.rebuild_every == 0:
-            self._fw.rebuild(self._exact_weights())
+            self._rebuild_weights()
         return True
 
     def _grow_top(self, at_least: int = 1) -> None:
@@ -629,7 +654,7 @@ class SlabKMC:
             rest = key >> 1
             x = self.site_energy(rest % self.nb, rest // self.nb) - self.e_cr
             self._rate_of[cid] = self.rates.detach(x) if kind == DETACH else self.rates.attach(x)
-        self._fw.rebuild(self._exact_weights())
+        self._rebuild_weights()
 
     # ------------------------------------------------------------------
     # Consultas
@@ -740,7 +765,8 @@ class SlabKMC:
     # ------------------------------------------------------------------
     def __getstate__(self):
         skip = ("_reclass", "_flip", "_occ", "_code", "_cls_of", "_pos_of", "_fw", "_key_of",
-                "_kind_of", "_rate_of", "_members", "_cid_of_key", "_nbr", "_energy_cache")
+                "_kind_of", "_rate_of", "_members", "_cid_of_key", "_nbr", "_energy_cache",
+                "_peak")
         state = {k: v for k, v in self.__dict__.items() if k not in skip}
         state["_occupancy"] = self.occupancy_array().copy()
         return state

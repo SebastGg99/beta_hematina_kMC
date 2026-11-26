@@ -225,6 +225,29 @@ class TestSlabPhysics(unittest.TestCase):
         self.assertTrue(comp["cumple"].all())
         self.assertEqual(monty.order_agreement(comp), 1.0)
 
+    def test_rounding_with_strong_bonds(self):
+        """Energías de decenas de kT (β-16.16.16 de MONTY): tasas de clase de 1e-35 a 1e13.
+
+        Restar del Fenwick la tasa de un adátomo (~1e10) cuando el total es ~1e-3 dejaba
+        residuos de redondeo comparables al total: la elección se sesgaba y acababa en
+        IndexError (evento 46 440 con esta semilla). Al elegir, el total debe ser exacto.
+        """
+        g = monty.graph_from_params({"graph": str(monty.DATA_DIR / "beta_16_16_16.json"), "T": 313.0})
+        dmu = monty.delta_mu_kT({"delta_mu_kcal": 8.0, "T": 313.0})
+        k = SlabKMC(g, (0, -1, 0), MontyRates(dmu), size=(40, 40), rng_seed=1)
+        fw, find = k._fw, k._fw.find
+        worst = [0.0]
+
+        def checked(target):
+            s = sum(k._exact_weights())
+            worst[0] = max(worst[0], abs(fw.total - s) / s)
+            return find(target)
+
+        fw.find = checked                  # mide el error del total justo antes de elegir
+        k.run(max_events=50_000)
+        self.assertLess(worst[0], 1e-9)
+        k.validate()
+
 
 if __name__ == "__main__":
     unittest.main()
